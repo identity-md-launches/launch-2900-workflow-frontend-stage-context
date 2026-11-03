@@ -1,5 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import { setupMock, A, SQK } from "./mock-chain";
+import { setupMock, A, SQK, docs, handoff } from "./mock-chain";
 async function ready(page: Page) {
   await page.goto("");
   await expect(
@@ -130,25 +130,34 @@ test("wallet rejection stays in the picker with a recovery message", async ({
     page.getByRole("button", { name: "Mock Squeek Wallet", exact: true }),
   ).toBeEnabled();
 });
-test("API identity mismatch blocks trade and merge signing", async ({
+test("API deployment mismatch warns while documented-contract trading stays enabled", async ({
   page,
 }) => {
   const state = await setupMock(page, { mismatch: true });
-  await page.goto("");
-  await expect(page.getByText("Trading paused", { exact: true })).toBeVisible();
+  await ready(page);
+  await expect(
+    page.getByText(
+      "Squeekchain API reports a newer deployment; SqueekMatch trades on the documented contracts",
+      { exact: true },
+    ),
+  ).toBeVisible();
   await connect(page);
   await trade(page);
   await expect(
     page.getByRole("button", { name: "Review ask", exact: true }),
-  ).toBeDisabled();
-  await expect(
-    page
-      .getByText(
-        "Squeekchain identities disagree. Trading and merging are paused.",
-      )
-      .first(),
-  ).toBeVisible();
-  expect(state.transactions).toHaveLength(0);
+  ).toBeEnabled();
+  await page
+    .getByRole("button", { name: "Bid for a level", exact: true })
+    .click();
+  await page
+    .getByRole("textbox", { name: "Bid amount · SQK", exact: true })
+    .fill("7.25");
+  await page.getByRole("button", { name: "Review bid", exact: true }).click();
+  await finishSteps(page, ["Approve SQK", "Create bid"]);
+  expect(state.transactions.map((t) => t.to.toLowerCase())).toEqual([
+    docs.contracts.SqueekToken.address.toLowerCase(),
+    handoff.contracts[0].address.toLowerCase(),
+  ]);
 });
 test("no deployed code refuses trading before graph or API trust", async ({
   page,
@@ -348,7 +357,7 @@ for (const [id, kind] of [
     if (id === 3) state.orders.get(3n)!.expiresAt = 1n;
     await page.goto("");
     await expect(
-      page.getByText("Trading paused", { exact: true }),
+      page.getByText("Identity checks passed", { exact: true }),
     ).toBeVisible();
     await connect(page);
     await trade(page);
@@ -626,7 +635,7 @@ test("wrong network stays visible and one switch restores transaction eligibilit
   ).toBeEnabled();
 });
 
-test("a new mismatch after review blocks even the first approval signature", async ({
+test("a new on-chain mismatch after review blocks even the first approval signature", async ({
   page,
 }) => {
   const state = await setupMock(page);
@@ -640,13 +649,13 @@ test("a new mismatch after review blocks even the first approval signature", asy
     .getByRole("textbox", { name: "Bid amount · SQK", exact: true })
     .fill("12");
   await page.getByRole("button", { name: "Review bid", exact: true }).click();
-  state.mismatch = true;
+  state.graphFault = "mining-token";
   await page
     .getByRole("dialog")
     .getByRole("button", { name: "Approve SQK", exact: true })
     .click();
   await expect(page.getByRole("dialog").getByRole("alert")).toContainText(
-    "identities disagree",
+    "on-chain graph and published docs disagree",
   );
   expect(state.transactions).toHaveLength(0);
 });
@@ -675,18 +684,28 @@ test("claim rewards is simulated and confirmed separately from the permanent mer
   expect(state.transactions[0].args).toEqual([0, [1n, 2n]]);
 });
 
-test("required API outage fails closed while read-only planning remains reachable", async ({
+test("API outage leaves documented-contract transactions and planning available", async ({
   page,
 }) => {
-  await setupMock(page, { apiUnavailable: true });
-  await page.goto("");
-  await expect(page.getByText("Trading paused", { exact: true })).toBeVisible();
+  const state = await setupMock(page, { apiUnavailable: true });
+  await ready(page);
   await expect(
     page.getByText(
-      "Unable to verify all identity sources. Trading stays paused; retry the check.",
+      "Squeekchain API telemetry is unavailable. Trading uses the documented contracts on chain.",
       { exact: true },
     ),
   ).toBeVisible();
+  await connect(page);
+  await trade(page);
+  await page
+    .getByRole("button", { name: "Bid for a level", exact: true })
+    .click();
+  await page
+    .getByRole("textbox", { name: "Bid amount · SQK", exact: true })
+    .fill("10");
+  await page.getByRole("button", { name: "Review bid", exact: true }).click();
+  await finishSteps(page, ["Approve SQK", "Create bid"]);
+  expect(state.transactions).toHaveLength(2);
   await page.getByRole("link", { name: "Chain planner", exact: true }).click();
   await expect(
     page.getByRole("checkbox", {

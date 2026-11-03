@@ -1,10 +1,39 @@
 # SqueekMatchEscrow
 
 Non-custodial, fee-free peer-to-peer market for Squeeks (Squeekchain's ERC-721) priced in SQK, built so holders
-of a lone Squeek at a level can find a merge partner. This repository holds the contract stage of SqueekMatch:
-the Solidity source, its tests, the ABI export and this document. The website is a later stage.
+of a lone Squeek at a level can find a merge partner. This repository contains the deployed contract source,
+its tests and ABI, the React website in `web/`, and the ready-to-serve static export in `dist/`.
 
 Fan-made and unofficial. Sepolia only. Not affiliated with Squeekchain.
+
+## Website: install, preview and rebuild
+
+Use Node 22.12+ and npm:
+
+```sh
+cd web
+npm ci
+npm run typecheck
+npm run build
+npm run verify
+npm run preview
+```
+
+The production build writes `dist/index.html`, relative asset URLs and the deployment/asset manifest to
+repository-root `dist/`. Serve that directory over HTTP(S), including from a static-hosting subpath; navigation
+uses hashes and needs no server rewrites. The existing package manifest and lockfile are preserved.
+
+Trading uses the **documented Sepolia contracts** when the escrow's on-chain graph, deployed code and published
+documentation agree. A newer deployment reported by the API produces a visible warning. API mismatch or outage
+never blocks a transaction; unavailable RPC, inconsistent on-chain graph or unverified docs still pause trading.
+Wallet holdings, levels, readiness, approvals and transaction previews use the documented contracts. API data
+is limited to clearly labelled hamster/wheel telemetry and the advisory deployment comparison.
+
+For interaction checks, run `npm run test:install` then `npm test` from `web/`. All signatures and transactions
+in those tests are mocked; no transaction is broadcast. This update passed the production build, strict typecheck,
+all **62 interaction/domain/accessibility tests**, and **16/16 design-probe checks**. WebKit could not launch
+because required system libraries are unavailable; live signing and physical-device checks were not performed. See [frontend setup and flows](web/README.md),
+[current validation results and limitations](docs/frontend/VALIDATION.md), and [implemented design](DESIGN.md).
 
 ## What it does
 
@@ -159,8 +188,9 @@ the level each listing was priced at without a second read.
   cancel leftovers after every merge, sale or transfer.
 - **Price discovery** is off-chain. Prices are the makers' own; the contract charges nothing and enforces no
   bounds beyond non-zero.
-- **The website must verify addresses** (escrow from the launch handoff, Squeekchain contracts from the
-  Deployments page and API identities) and refuse trading on mismatch, dry-run every transaction with `eth_call`,
+- **The website verifies addresses** against the launch handoff and published documentation, follows the
+  escrow/NFT/Mining graph on Sepolia, and refuses trading on a graph mismatch or unavailable RPC. API identity
+  differences are advisory warnings. It dry-runs every transaction with `eth_call`,
   and show the testnet banner, as the approved brief requires.
 
 ## Security notes

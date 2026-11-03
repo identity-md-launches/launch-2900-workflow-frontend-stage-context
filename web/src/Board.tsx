@@ -68,9 +68,9 @@ export default function Board({
         <Users size={22} aria-hidden="true" />
       </div>
       <p className="muted">
-        Public NFT transfers and mining merge events reveal holders with an odd
-        number at each level. An indexed single is a possible partner, not an
-        offer to sell.
+        Documented Sepolia NFT transfers and Mining merge events reveal holders
+        with an odd number at each level. An indexed single is a possible
+        partner, not an offer to sell.
       </p>
       <div className="toolbar">
         <Field label="Level filter">

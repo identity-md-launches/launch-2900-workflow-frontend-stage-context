@@ -1,31 +1,277 @@
 {
-  "checkedAt": "2026-11-03T00:12:56.762Z",
+  "checkedAt": "2026-11-03T06:49:43.327Z",
   "passed": true,
   "assetCount": 37,
-  "manifestExcludedFromOwnInventory": true,
-  "exportBytesIncludingManifest": 1055895,
-  "maxFileBytes": 363514,
-  "estimatedTwoCopyBodyBytes": 2111790,
+  "exportBytesIncludingManifest": 1057468,
+  "maxFileBytes": 364541,
   "httpFilesChecked": 38,
   "relativeEntrypointAssets": true,
-  "exactHandoffAndNetworkMatch": true,
-  "abiChecks": [
+  "metadata": {
+    "title": true,
+    "description": true,
+    "favicon": true,
+    "ogTitle": true,
+    "ogImage": true
+  },
+  "assets": [
     {
-      "name": "SqueekMatchEscrow",
-      "canonicalKeccak": "000dd3c70055e309aeaa0c7ea80a1a8e5c4e0051ac51ad85843d5b5aebdef12b",
-      "rawSha256": "16006c7c02a4f95b5e1d51c367e8d5dfa40e6d1128bc89f0eb00ef0deae9a4e1",
-      "pinnedSourceBytesMatch": true
+      "path": "abi/SqueekMatchEscrow.json",
+      "status": 200,
+      "bytes": 23372,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "assets/_esm-S256KbrO.js",
+      "status": 200,
+      "bytes": 133234,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "assets/ccip-C_snM0do.js",
+      "status": 200,
+      "bytes": 112458,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "assets/config-BREQj25u.js",
+      "status": 200,
+      "bytes": 28865,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "assets/dist-CNdkgSf6.js",
+      "status": 200,
+      "bytes": 99064,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "assets/dm-sans-latin-ext-wght-normal-BOFOeGcA.woff2",
+      "status": 200,
+      "bytes": 18228,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "assets/dm-sans-latin-wght-normal-Xz1IZZA0.woff2",
+      "status": 200,
+      "bytes": 36932,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "assets/index-BV7zQUK-.js",
+      "status": 200,
+      "bytes": 364541,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "assets/index-Dn_g4K9u.css",
+      "status": 200,
+      "bytes": 22068,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "assets/rolldown-runtime-XKyaHtl9.js",
+      "status": 200,
+      "bytes": 726,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "assets/secp256k1-DLGpOtNW.js",
+      "status": 200,
+      "bytes": 29922,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "assets/utils-DFnHSamt.js",
+      "status": 200,
+      "bytes": 2439,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "favicon.svg",
+      "status": 200,
+      "bytes": 471,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "index.html",
+      "status": 200,
+      "bytes": 1863,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "licenses/RainbowKit-LICENSE.txt",
+      "status": 200,
+      "bytes": 1064,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "licenses/coinbase-wallet-sdk-LICENSE.txt",
+      "status": 200,
+      "bytes": 564,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "licenses/fontsource-variable-dm-sans-LICENSE.txt",
+      "status": 200,
+      "bytes": 4502,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "licenses/lucide-react-LICENSE.txt",
+      "status": 200,
+      "bytes": 3208,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "licenses/react-LICENSE.txt",
+      "status": 200,
+      "bytes": 1088,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "licenses/react-dom-LICENSE.txt",
+      "status": 200,
+      "bytes": 1088,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "licenses/tanstack-react-query-LICENSE.txt",
+      "status": 200,
+      "bytes": 1079,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "licenses/viem-LICENSE.txt",
+      "status": 200,
+      "bytes": 1074,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "licenses/wagmi-LICENSE.txt",
+      "status": 200,
+      "bytes": 1074,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "licenses/wagmi-connectors-LICENSE.txt",
+      "status": 200,
+      "bytes": 1074,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "licenses/wagmi-core-LICENSE.txt",
+      "status": 200,
+      "bytes": 1074,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "official/SqueekCore.json",
+      "status": 200,
+      "bytes": 18914,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "official/SqueekMining.json",
+      "status": 200,
+      "bytes": 26808,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "official/SqueekNFT.json",
+      "status": 200,
+      "bytes": 36899,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "official/SqueekToken.json",
+      "status": 200,
+      "bytes": 11885,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "official/provenance.json",
+      "status": 200,
+      "bytes": 275,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "official/sepolia.json",
+      "status": 200,
+      "bytes": 4984,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "partners.svg",
+      "status": 200,
+      "bytes": 1806,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "social.png",
+      "status": 200,
+      "bytes": 52337,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "wallets/coinbase.svg",
+      "status": 200,
+      "bytes": 542,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "wallets/metaMask.svg",
+      "status": 200,
+      "bytes": 1665,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "wallets/phantom.svg",
+      "status": 200,
+      "bytes": 861,
+      "hashMatches": true,
+      "sourceExportMatches": true
+    },
+    {
+      "path": "wallets/rabby.svg",
+      "status": 200,
+      "bytes": 2290,
+      "hashMatches": true,
+      "sourceExportMatches": true
     }
-  ],
-  "socialImage": {
-    "format": "PNG",
-    "width": 1200,
-    "height": 630
-  },
-  "limits": {
-    "assets": 128,
-    "perFileBytes": 8388608,
-    "publicationBodyBudgetBytes": 67108864
-  },
-  "publicationChecksAlreadyRun": false
+  ]
 }

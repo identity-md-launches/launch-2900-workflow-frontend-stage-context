@@ -13,14 +13,12 @@ export default function Planner({
   tokens,
   orders,
   review,
-  pace,
 }: {
   ctx: Context;
   verification: Verification;
   tokens: Squeek[] | null;
   orders: Order[];
   review: Review;
-  pace: number | null;
 }) {
   const { address, isConnected, chainId } = useAccount();
   const eco = verification.ecosystem;
@@ -200,8 +198,10 @@ export default function Planner({
           {manual
             ? "What-if mode is a calculation, not a wallet balance. "
             : ""}
-          Power tables come from SqueekMining. Cost uses current fillable floor
-          asks, excludes gas and may change. Deposited Squeeks are excluded.
+          Wallet levels, power and cooldowns come from the documented contracts
+          on Sepolia. Paths are hypothetical; check live merge readiness in
+          Merge. Cost uses current fillable floor asks, excludes gas and may
+          change. Deposited Squeeks are excluded.
         </p>
       </section>
       {plans.length ? (
@@ -259,9 +259,7 @@ export default function Planner({
                     <dt>Cooldown after merges</dt>
                     <dd>
                       {plan.cooldownBlocks.toLocaleString()} Squeek blocks
-                      {pace
-                        ? ` · about ${((Number(plan.cooldownBlocks) / pace) * 24).toFixed(1)} hours at observed pace`
-                        : " · hamster pace unavailable"}
+                      {" · Time depends on this deployment’s hamster work"}
                     </dd>
                   </div>
                 </dl>

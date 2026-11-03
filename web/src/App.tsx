@@ -12,15 +12,17 @@ import {
   ShieldX,
   Sprout,
 } from "lucide-react";
-import { amount, addressValue, errorText, same } from "./domain";
+import { amount, addressValue, errorText } from "./domain";
 import {
   derivePace,
+  apiDeploymentWarning,
   fillsLabel,
   loadOrders,
   loadWallet,
   read,
   supplementary,
   verifyIdentity,
+  wheelStatus,
 } from "./service";
 import { SOURCES } from "./config";
 import { clearIndexCache } from "./indexer";
@@ -191,7 +193,7 @@ export default function App({ ctx }: { ctx: Context }) {
       setTokens(result.tokens);
       setInspected(owner);
       setThrough(result.through);
-      setNote(result.apiNote);
+      setNote(result.note);
     } catch (e) {
       if (!controller.signal.aborted) setScanError(errorText(e));
     } finally {
@@ -209,9 +211,8 @@ export default function App({ ctx }: { ctx: Context }) {
     setReceived(id);
     location.hash = "merge";
   }
-  const apiToken = (api.economy?.identities as { token?: string } | undefined)
-    ?.token;
-  const pace = eco && same(apiToken, eco.token) ? derivePace(api) : null;
+  const pace = derivePace(api);
+  const apiWarning = apiDeploymentWarning(ctx, api);
   useEffect(() => {
     const update = () => {
       setPage(currentPage());
@@ -224,7 +225,10 @@ export default function App({ ctx }: { ctx: Context }) {
     void verify();
     void supplementary().then(setApi);
     const timer = window.setInterval(() => {
-      if (document.visibilityState === "visible") void verify();
+      if (document.visibilityState === "visible") {
+        void verify();
+        void supplementary().then(setApi);
+      }
     }, 60000);
     return () => {
       clearInterval(timer);
@@ -349,7 +353,6 @@ export default function App({ ctx }: { ctx: Context }) {
                   scanError={scanError}
                   through={through}
                   note={note}
-                  pace={pace}
                 />
               )}
               {page === "planner" && (
@@ -359,7 +362,6 @@ export default function App({ ctx }: { ctx: Context }) {
                   tokens={tokens}
                   orders={orders}
                   review={setPlan}
-                  pace={pace}
                 />
               )}
               {page === "board" && (
@@ -514,6 +516,13 @@ export default function App({ ctx }: { ctx: Context }) {
                       : "Trading paused"}
                 </p>
                 <p className="caption">{verification.message}</p>
+                <div role="status">
+                  {apiWarning && (
+                    <p className="caption api-deployment-warning">
+                      {apiWarning}
+                    </p>
+                  )}
+                </div>
                 <details>
                   <summary>View contract checks</summary>
                   <div className="identity-list">
@@ -535,8 +544,9 @@ export default function App({ ctx }: { ctx: Context }) {
                     )}
                   </div>
                   <p className="caption muted">
-                    Snapshot retrieved {ctx.provenance.retrievedAt}. Live docs
-                    and API are rechecked before every trade, approval or merge.
+                    Snapshot retrieved {ctx.provenance.retrievedAt}. On-chain
+                    graph and live docs are rechecked before every trade,
+                    approval or merge. API identities are advisory only.
                   </p>
                 </details>
                 <button
@@ -561,6 +571,34 @@ export default function App({ ctx }: { ctx: Context }) {
                     {new Date(verification.checkedAt).toLocaleTimeString()}
                   </p>
                 )}
+              </section>
+              <section
+                className="surface stack"
+                aria-label="Squeekchain API telemetry"
+              >
+                <h2>Hamster & wheel</h2>
+                <p className="caption muted">
+                  Source: Squeekchain API · Display only
+                </p>
+                <dl className="facts">
+                  <div>
+                    <dt>Wheel</dt>
+                    <dd>{wheelStatus(api)}</dd>
+                  </div>
+                  <div>
+                    <dt>Hamster pace</dt>
+                    <dd>
+                      {pace
+                        ? `${pace.toFixed(0)} Squeek blocks/day`
+                        : "Unavailable"}
+                    </dd>
+                  </div>
+                </dl>
+                <p className="caption muted">
+                  Observed API telemetry may describe the newer deployment. It
+                  does not determine holdings, rewards or merge readiness here.
+                </p>
+                {api.error && <p className="caption muted">{api.error}</p>}
               </section>
               {address && (
                 <section className="surface wallet-balance">
@@ -675,11 +713,12 @@ export default function App({ ctx }: { ctx: Context }) {
                   </a>
                 </div>
                 <p className="caption">
-                  API data is display-only. If identities disagree or a required
-                  source is unavailable, trading stays paused. Cached logs are
-                  12 confirmations behind; ownership and eligibility are
-                  rechecked live. Clear the local event cache to rescan a
-                  suspected indexing problem.
+                  The escrow and documented on-chain graph determine trading
+                  eligibility. An inconsistent graph, unavailable RPC or
+                  unverified documentation pauses trading. API deployment
+                  differences are warnings. Cached logs are 12 confirmations
+                  behind; ownership and eligibility are rechecked live. Clear
+                  the local event cache to rescan a suspected indexing problem.
                 </p>
                 <button
                   type="button"
@@ -696,19 +735,44 @@ export default function App({ ctx }: { ctx: Context }) {
                 <p className="caption" role="status">
                   {cacheMessage}
                 </p>
-                {api.error && <p className="caption muted">{api.error}</p>}
-                <p className="caption muted">
-                  Hamster pace:{" "}
-                  {pace
-                    ? `${pace.toFixed(0)} Squeek blocks/day, observed from API settlements`
-                    : "Unavailable for the attested deployment"}
-                  . The hamster can rest; cooldown time is an estimate.
-                </p>
               </div>
             </details>
           </section>
         </main>
         <footer>
+          <section
+            className="footer-contracts"
+            aria-label="Documented trading contracts"
+          >
+            <h2>Documented contracts · Sepolia</h2>
+            <p className="caption muted">
+              A newer Squeekchain testnet deployment exists and will get its own
+              escrow later. SqueekMatch uses this documented set.
+            </p>
+            <dl>
+              {[
+                ["SqueekMatchEscrow", ctx.escrow.address],
+                ...[
+                  "SqueekNFT",
+                  "SqueekToken",
+                  "SqueekMining",
+                  "SqueekCore",
+                ].map((name) => [name, ctx.docs.contracts[name].address]),
+              ].map(([name, contract]) => (
+                <div key={name}>
+                  <dt>{name === "SqueekToken" ? "SqueekToken · SQK" : name}</dt>
+                  <dd>
+                    <AddressLink
+                      ctx={ctx}
+                      address={contract}
+                      full
+                      label={name}
+                    />
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </section>
           <span className="inline">
             <img src="./favicon.svg" alt="" width="22" height="22" />
             SqueekMatch <span className="muted">· Unofficial, on purpose.</span>

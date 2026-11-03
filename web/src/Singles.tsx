@@ -16,7 +16,6 @@ export default function Singles({
   scanError,
   through,
   note,
-  pace,
 }: {
   ctx: Context;
   verification: Verification;
@@ -29,7 +28,6 @@ export default function Singles({
   scanError: string;
   through?: bigint;
   note?: string;
-  pace: number | null;
 }) {
   const { address } = useAccount();
   const [input, setInput] = useState(scanAddress);
@@ -54,13 +52,6 @@ export default function Singles({
         0n,
       )
     : 0n;
-  const daily =
-    eco && pace && eco.totalWeight > 0n
-      ? ((Number(opportunity) * Number(eco.rewardPerBlock)) /
-          Number(eco.totalWeight) /
-          10 ** eco.decimals) *
-        pace
-      : null;
   return (
     <div className="stack-large">
       <section className="surface wallet-explorer">
@@ -172,7 +163,8 @@ export default function Singles({
               {through
                 ? `Transfer history through Sepolia block ${through.toLocaleString()}; positions and ownership checked live.`
                 : ""}{" "}
-              Squeek cooldown blocks are earned by the hamster, not Ethereum.
+              Source: documented NFT, Mining and escrow on Sepolia. Squeek
+              cooldown blocks are earned by the hamster, not Ethereum.
             </p>
             {note && <Notice tone="warn">{note}</Notice>}
             {!tokens.length ? (
@@ -227,6 +219,11 @@ export default function Singles({
                             </div>
                             <div className="token-state">
                               <span>
+                                {t.mergeReady
+                                  ? "Merge-ready"
+                                  : "Not merge-ready"}
+                              </span>
+                              <span>
                                 {remaining > 0n
                                   ? `${remaining.toLocaleString()} blocks cooling`
                                   : "Cooldown complete"}
@@ -262,12 +259,10 @@ export default function Singles({
                 partner.
               </p>
               <p className="caption">
-                Lost power estimate:{" "}
-                {daily === null
-                  ? "SQK/day unavailable; matching API pace or on-chain reward inputs are missing."
-                  : `${daily.toLocaleString("en-US", { maximumFractionDigits: 4 })} SQK/day at observed hamster pace.`}{" "}
                 This is a hypothetical opportunity, not a guaranteed yield.
                 Purchase cost and dilution from new total power are excluded.
+                API pace from the newer deployment is not used to estimate
+                rewards.
               </p>
             </div>
           </section>

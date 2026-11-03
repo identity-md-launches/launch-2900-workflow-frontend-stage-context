@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useAccount } from "wagmi";
 import { ArrowDownUp, ArrowRight, Plus, Search } from "lucide-react";
-import { fetchJson, SOURCES } from "./config";
 import { amount, errorText, positiveId, same, sqk } from "./domain";
 import { approvals, escrowRead, loadOrder, marketStep, read } from "./service";
 import {
@@ -38,7 +37,6 @@ export type TokenPreview = {
   position: Position;
   claimable: bigint | null;
   ready: boolean;
-  apiNote?: string;
 };
 export async function inspectToken(
   ctx: Context,
@@ -54,23 +52,7 @@ export async function inspectToken(
     ]).catch(() => null),
     escrowRead<boolean>(ctx, "isMergeReady", [id]),
   ]);
-  let apiNote: string;
-  try {
-    const api = await fetchJson<{
-      status: string;
-      identities?: { token?: string };
-      custody?: { owner?: string; depositor?: string | null };
-    }>(`${SOURCES.api}/v1/squeeks/${id}`);
-    apiNote =
-      same(api.identities?.token, eco.token) && api.status === "available"
-        ? api.custody?.depositor
-          ? "API reports a deposited Squeek. Withdraw before trading; current ownership above is read on chain."
-          : "API display data matches the SQK deployment. Eligibility above is read on chain."
-        : "Squeek API identities differ or data is unavailable. API metadata is excluded; these facts come from contracts.";
-  } catch {
-    apiNote = "Squeek API unavailable. These facts come from contracts.";
-  }
-  return { id, owner, position, claimable, ready, apiNote };
+  return { id, owner, position, claimable, ready };
 }
 export function TokenFacts({
   token,
@@ -117,7 +99,10 @@ export function TokenFacts({
           </dd>
         </div>
       </dl>
-      {token.apiNote && <p className="caption muted">{token.apiNote}</p>}
+      <p className="caption muted">
+        Ownership, level, rewards and merge readiness: documented contracts on
+        Sepolia.
+      </p>
     </>
   );
 }

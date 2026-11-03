@@ -109,6 +109,7 @@ export type Squeek = {
   position: Position;
   claimable: bigint | null;
   deposited: boolean;
+  mergeReady: boolean;
 };
 export type Kind = "Ask" | "Bid" | "Swap";
 export type Order = {
@@ -141,7 +142,6 @@ export type IndexResult = {
 export type ApiData = {
   economy?: Record<string, unknown>;
   status?: Record<string, unknown>;
-  stats?: Record<string, unknown>;
   events?: Record<string, unknown>;
   error?: string;
 };

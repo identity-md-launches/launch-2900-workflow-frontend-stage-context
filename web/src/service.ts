@@ -39,13 +39,37 @@ export const escrowRead = <T>(
   args: readonly unknown[] = [],
   block?: bigint,
 ) => read<T>(ctx, ctx.escrow.address, ctx.escrowAbi, fn, args, block);
+class GraphMismatch extends Error {}
 export async function ecosystem(ctx: Context): Promise<Ecosystem> {
   const blockNumber = await ctx.client.getBlockNumber({ cacheTime: 0 });
-  const [nft, token, mining] = await Promise.all([
+  const [nft, token, escrowMining] = await Promise.all([
     escrowRead<Address>(ctx, "SQUEEK", [], blockNumber),
     escrowRead<Address>(ctx, "SQK", [], blockNumber),
     escrowRead<Address>(ctx, "mining", [], blockNumber),
   ]);
+  // Resolve from the escrow's immutable set. Never follow an undocumented graph.
+  if (
+    !same(nft, ctx.docs.contracts.SqueekNFT.address) ||
+    !same(token, ctx.docs.contracts.SqueekToken.address)
+  )
+    throw new GraphMismatch(
+      "Escrow SQUEEK/SQK differ from the documented contracts. Trading stays paused.",
+    );
+  const mining = await read<Address>(
+    ctx,
+    nft,
+    ctx.abis.SqueekNFT,
+    "mining",
+    [],
+    blockNumber,
+  );
+  if (
+    !same(mining, escrowMining) ||
+    !same(mining, ctx.docs.contracts.SqueekMining.address)
+  )
+    throw new GraphMismatch(
+      "NFT.mining() and escrow mining must match the documented Mining contract. Trading stays paused.",
+    );
   const core = await read<Address>(
     ctx,
     mining,
@@ -54,6 +78,10 @@ export async function ecosystem(ctx: Context): Promise<Ecosystem> {
     [],
     blockNumber,
   );
+  if (!same(core, ctx.docs.contracts.SqueekCore.address))
+    throw new GraphMismatch(
+      "Mining core differs from the documented Core contract. Trading stays paused.",
+    );
   const [decimals, symbol, policy, state, miningState, rewardPerBlock] =
     await Promise.all([
       read<number>(
@@ -115,9 +143,12 @@ export async function verifyIdentity(ctx: Context): Promise<Verification> {
     ]);
     rows.push({
       label: "RPC chain",
-      expected: String(ctx.deployment.chainId),
+      expected: "11155111",
       actual: String(chainId),
-      ok: chainId === ctx.deployment.chainId,
+      ok:
+        chainId === 11155111 &&
+        ctx.deployment.chainId === 11155111 &&
+        ctx.docs.chainId === 11155111,
     });
     rows.push({
       label: "Attested escrow code",
@@ -126,23 +157,12 @@ export async function verifyIdentity(ctx: Context): Promise<Verification> {
       ok: !!code && code !== "0x",
     });
     if (rows.some((r) => !r.ok))
-      throw new Error(
+      throw new GraphMismatch(
         "The configured RPC or deployed escrow failed verification.",
       );
     eco = await ecosystem(ctx);
-    // Live docs must still match the shipped reference; the API alone never selects transaction targets.
-    const results = await Promise.allSettled([
-      fetchJson<Context["docs"]>(SOURCES.deployments),
-      fetchJson<{
-        chain: { chainId: string };
-        identities: {
-          token: Address;
-          core: Address;
-          mining: { proxy: Address };
-        };
-        asset: { address: Address };
-      }>(`${SOURCES.api}/v1/economy/state`),
-    ]);
+    // Documentation is required. API availability and identities never gate a signature.
+    const liveDocs = await fetchJson<Context["docs"]>(SOURCES.deployments);
     const documented = ctx.docs.contracts;
     for (const [name, actual] of [
       ["SqueekNFT", eco.nft],
@@ -157,16 +177,14 @@ export async function verifyIdentity(ctx: Context): Promise<Verification> {
         actual,
         ok: same(expected, actual),
       });
-      const live = results[0];
-      if (live.status === "fulfilled")
-        rows.push({
-          label: `${name} · live documentation`,
-          expected: actual,
-          actual: live.value.contracts[name]?.address,
-          ok:
-            live.value.chainId === ctx.deployment.chainId &&
-            same(actual, live.value.contracts[name]?.address),
-        });
+      rows.push({
+        label: `${name} · live documentation`,
+        expected: actual,
+        actual: liveDocs.contracts[name]?.address,
+        ok:
+          liveDocs.chainId === 11155111 &&
+          same(actual, liveDocs.contracts[name]?.address),
+      });
     }
     rows.push({
       label: "Mining collection and SQK",
@@ -181,19 +199,23 @@ export async function verifyIdentity(ctx: Context): Promise<Verification> {
       token: Address;
       genesisCollection: Address;
       core: Address;
-    }>(ctx, eco.mining, ctx.abis.SqueekMining, "configuration");
-    rows.push({
-      label: "Mining contract graph",
-      expected: eco.token,
-      actual: cfg.token,
-      ok:
-        same(cfg.token, eco.token) &&
-        same(cfg.genesisCollection, eco.nft) &&
-        same(cfg.core, eco.core),
-    });
+    }>(
+      ctx,
+      eco.mining,
+      ctx.abis.SqueekMining,
+      "configuration",
+      [],
+      eco.blockNumber,
+    );
+    for (const [label, expected, actual] of [
+      ["Mining SQK", eco.token, cfg.token],
+      ["Mining genesis NFT", eco.nft, cfg.genesisCollection],
+      ["Mining core", eco.core, cfg.core],
+    ] as const)
+      rows.push({ label, expected, actual, ok: same(expected, actual) });
     const codes = await Promise.all(
       [eco.nft, eco.token, eco.mining, eco.core].map((address) =>
-        ctx.client.getCode({ address }),
+        ctx.client.getCode({ address, blockNumber: eco!.blockNumber }),
       ),
     );
     rows.push({
@@ -202,45 +224,28 @@ export async function verifyIdentity(ctx: Context): Promise<Verification> {
       actual: `${codes.filter((code) => code && code !== "0x").length} contracts with code`,
       ok: codes.every((code) => !!code && code !== "0x"),
     });
-    if (results[1].status === "fulfilled") {
-      const api = results[1].value;
-      for (const [label, expected, actual] of [
-        ["API SQK token", eco.token, api.identities?.token],
-        ["API asset", eco.token, api.asset?.address],
-        ["API mining", eco.mining, api.identities?.mining?.proxy],
-        ["API core", eco.core, api.identities?.core],
-      ] as const)
-        rows.push({ label, expected, actual, ok: same(expected, actual) });
-      rows.push({
-        label: "API chain",
-        expected: String(ctx.deployment.chainId),
-        actual: api.chain?.chainId,
-        ok: Number(api.chain?.chainId) === ctx.deployment.chainId,
-      });
-    }
     const mismatch = rows.some((row) => !row.ok);
-    const unavailable = results.some((result) => result.status === "rejected");
-    const ok = !mismatch && !unavailable;
+    const ok = !mismatch;
     return {
       ok,
-      status: mismatch ? "mismatch" : unavailable ? "unavailable" : "verified",
-      ecosystem: eco,
+      status: mismatch ? "mismatch" : "verified",
+      ecosystem: ok ? eco : undefined,
       checkedAt: Date.now(),
       rows,
       message: mismatch
-        ? "Squeekchain identities disagree. Trading and merging are paused."
-        : unavailable
-          ? "Unable to verify all identity sources. Trading stays paused; retry the check."
-          : "Sepolia, escrow, documentation and API identities match.",
+        ? "The on-chain graph and published docs disagree. Trading and merging are paused."
+        : "Sepolia escrow and on-chain graph match the documented contracts. Trading is available.",
     };
   } catch (error) {
     return {
       ok: false,
-      status: "unavailable",
-      ecosystem: eco,
+      status: error instanceof GraphMismatch ? "mismatch" : "unavailable",
       checkedAt: Date.now(),
       rows,
-      message: `Verification unavailable. ${error instanceof Error ? error.message.slice(0, 160) : "Check the RPC and try again."}`,
+      message:
+        error instanceof GraphMismatch
+          ? error.message
+          : `Verification unavailable. Trading stays paused. ${error instanceof Error ? error.message.slice(0, 160) : "Check the RPC and try again."}`,
     };
   }
 }
@@ -266,51 +271,9 @@ export async function loadWallet(
       if (same(String(event.args.to), owner)) ids.add(id);
       else if (same(String(event.args.from), owner)) ids.delete(id);
     }
-  // API deposit information is display-only and ignored if its identity does not match this escrow.
-  let apiNote: string | undefined;
-  let depositedIds: string[] = [];
-  try {
-    type AccountPage = {
-      status: string;
-      identities?: { token?: string };
-      tokens?: { tokenId: string; custody: string }[];
-      nextCursor?: string | null;
-    };
-    let cursor: string | null = null;
-    const visited = new Set<string>();
-    do {
-      signal?.throwIfAborted();
-      const query = new URLSearchParams({
-        limit: "100",
-        ...(cursor ? { cursor } : {}),
-      });
-      const api: AccountPage = await fetchJson<AccountPage>(
-        `${SOURCES.api}/v1/accounts/${owner}?${query}`,
-      );
-      if (!same(api.identities?.token, eco.token)) {
-        apiNote =
-          "API account identities differ. Deposit and API reward data are excluded; wallet holdings below come from the attested NFT.";
-        depositedIds = [];
-        break;
-      }
-      if (api.status !== "available")
-        throw new Error("Account API is unavailable.");
-      depositedIds.push(
-        ...(api.tokens ?? [])
-          .filter((item) => item.custody === "staking")
-          .map((item) => item.tokenId),
-      );
-      cursor = api.nextCursor ?? null;
-      if (cursor && visited.has(cursor))
-        throw new Error("Account API repeated its pagination cursor.");
-      if (cursor) visited.add(cursor);
-    } while (cursor !== null);
-  } catch {
-    depositedIds = [];
-    apiNote =
-      "Account API unavailable. Wallet holdings still come from on-chain transfer events; deposited holdings may be absent.";
-  }
-  depositedIds.forEach((id) => ids.add(id));
+  // Discovery, ownership, levels and readiness all belong to the documented chain.
+  let note: string | undefined;
+  const blockNumber = await ctx.client.getBlockNumber({ cacheTime: 0 });
   const list = [...ids].map(BigInt).sort((a, b) => (a < b ? -1 : 1));
   const tokens: Squeek[] = [];
   for (let i = 0; i < list.length; i += 20) {
@@ -323,33 +286,42 @@ export async function loadWallet(
         await Promise.all(
           list.slice(i, i + 20).map(async (id) => {
             try {
-              const [actualOwner, position, claim] = await Promise.all([
-                read<Address>(ctx, eco.nft, ctx.abis.SqueekNFT, "ownerOf", [
-                  id,
-                ]),
-                read<Position>(
-                  ctx,
-                  eco.mining,
-                  ctx.abis.SqueekMining,
-                  "position",
-                  [0, id],
-                ),
-                read<bigint>(
-                  ctx,
-                  eco.mining,
-                  ctx.abis.SqueekMining,
-                  "claimable",
-                  [0, [id]],
-                ).catch(() => null),
-              ]);
-              return same(actualOwner, owner) ||
-                depositedIds.includes(String(id))
+              const [actualOwner, position, claim, mergeReady] =
+                await Promise.all([
+                  read<Address>(
+                    ctx,
+                    eco.nft,
+                    ctx.abis.SqueekNFT,
+                    "ownerOf",
+                    [id],
+                    blockNumber,
+                  ),
+                  read<Position>(
+                    ctx,
+                    eco.mining,
+                    ctx.abis.SqueekMining,
+                    "position",
+                    [0, id],
+                    blockNumber,
+                  ),
+                  read<bigint>(
+                    ctx,
+                    eco.mining,
+                    ctx.abis.SqueekMining,
+                    "claimable",
+                    [0, [id]],
+                    blockNumber,
+                  ).catch(() => null),
+                  escrowRead<boolean>(ctx, "isMergeReady", [id], blockNumber),
+                ]);
+              return same(actualOwner, owner)
                 ? {
                     id,
                     owner: actualOwner,
                     position,
                     claimable: claim,
-                    deposited: !same(actualOwner, owner),
+                    deposited: false,
+                    mergeReady,
                   }
                 : null;
             } catch {
@@ -369,10 +341,11 @@ export async function loadWallet(
     ctx.abis.SqueekNFT,
     "balanceOf",
     [owner],
+    blockNumber,
   );
   if (liveBalance !== BigInt(tokens.filter((t) => !t.deposited).length))
-    apiNote = `${apiNote ? apiNote + " " : ""}The latest NFT balance differs from the confirmed event index. Recent transfers may be awaiting 12 confirmations. Refresh later.`;
-  return { tokens, through: index.through, apiNote };
+    note = `The latest NFT balance differs from the confirmed event index. Recent transfers may be awaiting 12 confirmations. Refresh later.`;
+  return { tokens, through: index.through, note };
 }
 export async function loadOrders(
   ctx: Context,
@@ -543,19 +516,14 @@ export async function approvals(
   return steps;
 }
 export async function supplementary(): Promise<ApiData> {
-  const endpoints = [
-    "/v1/economy/state",
-    "/v1/status",
-    "/v1/measurement/stats?range=7d",
-    "/v1/events?limit=10",
-  ];
+  const endpoints = ["/v1/economy/state", "/v1/status", "/v1/events?limit=10"];
   const results = await Promise.allSettled(
     endpoints.map((path) =>
       fetchJson<Record<string, unknown>>(SOURCES.api + path),
     ),
   );
   const data: ApiData = {};
-  const names = ["economy", "status", "stats", "events"] as const;
+  const names = ["economy", "status", "events"] as const;
   results.forEach((r, i) => {
     if (r.status === "fulfilled") data[names[i]] = r.value;
     else
@@ -564,8 +532,44 @@ export async function supplementary(): Promise<ApiData> {
   });
   return data;
 }
+export function apiDeploymentWarning(
+  ctx: Context,
+  data: ApiData,
+): string | undefined {
+  if (!data.economy)
+    return data.error
+      ? "Squeekchain API telemetry is unavailable. Trading uses the documented contracts on chain."
+      : undefined;
+  const api = data.economy as {
+    chain?: { chainId?: string };
+    identities?: { token?: string; core?: string; mining?: { proxy?: string } };
+    asset?: { address?: string };
+  };
+  if (
+    Number(api.chain?.chainId) !== 11155111 ||
+    !same(api.identities?.token, ctx.docs.contracts.SqueekToken.address) ||
+    !same(api.asset?.address, ctx.docs.contracts.SqueekToken.address) ||
+    !same(
+      api.identities?.mining?.proxy,
+      ctx.docs.contracts.SqueekMining.address,
+    ) ||
+    !same(api.identities?.core, ctx.docs.contracts.SqueekCore.address)
+  )
+    return "Squeekchain API reports a newer deployment; SqueekMatch trades on the documented contracts";
+}
+export function wheelStatus(data: ApiData): string {
+  const measurement = data.status?.measurement as
+    { coreStatus?: string; freshness?: string } | undefined;
+  if (measurement?.freshness !== "online") return "Unavailable or stale";
+  return measurement.coreStatus === "IDLE"
+    ? "Resting"
+    : measurement.coreStatus === "ACTIVE" ||
+        measurement.coreStatus === "RUNNING"
+      ? "Turning"
+      : "Status unavailable";
+}
 export function derivePace(data: ApiData): number | null {
-  // API identity is checked by the caller; an observation is an estimate, never a cooldown guarantee.
+  // Global hamster telemetry may describe the newer deployment. Never use it for eligibility.
   const events = data.events?.events as
     | {
         type: string;
@@ -585,7 +589,8 @@ export function derivePace(data: ApiData): number | null {
     .slice(0, -1)
     .reduce((sum, e) => sum + Number(e.payload!.completedBlockCount), 0);
   const days = (newest - oldest) / 86400000;
-  return days > 0 && blocks > 0 ? blocks / days : null;
+  const pace = blocks / days;
+  return days > 0 && blocks > 0 && Number.isFinite(pace) ? pace : null;
 }
 export function fillsLabel(event: IndexedEvent) {
   return `${event.name.replace("Filled", "")} #${event.args.askId ?? event.args.bidId ?? event.args.swapId}`;

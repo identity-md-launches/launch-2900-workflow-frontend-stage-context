@@ -57,6 +57,28 @@ export type MockState = {
   mismatch: boolean;
   apiUnavailable: boolean;
   noCode: boolean;
+  noCodeAt?: Address;
+  graphFault?:
+    | "escrow-nft"
+    | "escrow-sqk"
+    | "escrow-mining"
+    | "nft-mining"
+    | "mining-core"
+    | "mining-token"
+    | "mining-nft"
+    | "config-core"
+    | "policy-nft";
+  rpcUnavailable: boolean;
+  rpcChain: number;
+  docsUnavailable: boolean;
+  docsMismatch: boolean;
+  apiCalls: string[];
+  contractReads: {
+    name: string;
+    functionName: string;
+    to: string;
+    block: unknown;
+  }[];
   unknownChain: boolean;
   rejectWallet: boolean;
   revert: boolean;
@@ -90,6 +112,12 @@ function defaults(): MockState {
     mismatch: false,
     apiUnavailable: false,
     noCode: false,
+    rpcUnavailable: false,
+    rpcChain: 11155111,
+    docsUnavailable: false,
+    docsMismatch: false,
+    apiCalls: [],
+    contractReads: [],
     unknownChain: false,
     rejectWallet: false,
     revert: false,
@@ -322,9 +350,12 @@ function readValue(
   const id = BigInt(String(args[0] ?? 0));
   const token = state.tokens.get(BigInt(String(args[1] ?? 0)));
   if (name === "SqueekMatchEscrow") {
-    if (fn === "SQUEEK") return addresses.SqueekNFT;
-    if (fn === "SQK") return addresses.SqueekToken;
-    if (fn === "mining") return addresses.SqueekMining;
+    if (fn === "SQUEEK")
+      return state.graphFault === "escrow-nft" ? B : addresses.SqueekNFT;
+    if (fn === "SQK")
+      return state.graphFault === "escrow-sqk" ? B : addresses.SqueekToken;
+    if (fn === "mining")
+      return state.graphFault === "escrow-mining" ? B : addresses.SqueekMining;
     if (fn === "nextOrderId") return state.next;
     if (fn === "kindOf") return state.orders.get(id)?.kind ?? 0;
     if (fn === "isOpen" || fn === "isFillable") {
@@ -371,7 +402,8 @@ function readValue(
       ];
   }
   if (name === "SqueekNFT") {
-    if (fn === "mining") return addresses.SqueekMining;
+    if (fn === "mining")
+      return state.graphFault === "nft-mining" ? B : addresses.SqueekMining;
     if (fn === "ownerOf") return state.tokens.get(id)?.owner ?? B;
     if (fn === "balanceOf")
       return BigInt(
@@ -392,7 +424,8 @@ function readValue(
     if (fn === "allowance") return state.allowance;
   }
   if (name === "SqueekMining") {
-    if (fn === "core") return addresses.SqueekCore;
+    if (fn === "core")
+      return state.graphFault === "mining-core" ? B : addresses.SqueekCore;
     if (fn === "REWARD_PER_BLOCK") return SQK("1000");
     if (fn === "claimable") return SQK("12.5");
     if (fn === "position")
@@ -405,7 +438,7 @@ function readValue(
       });
     if (fn === "collectionPolicy")
       return {
-        nft: addresses.SqueekNFT,
+        nft: state.graphFault === "policy-nft" ? B : addresses.SqueekNFT,
         maxSupply: 9999,
         maximumLevel: 10,
         levels: docs.squeeksPolicy.levels.map(
@@ -417,9 +450,10 @@ function readValue(
       };
     if (fn === "configuration")
       return tupleResult(abis.SqueekMining, fn, {
-        core: addresses.SqueekCore,
-        token: addresses.SqueekToken,
-        genesisCollection: addresses.SqueekNFT,
+        core: state.graphFault === "config-core" ? B : addresses.SqueekCore,
+        token: state.graphFault === "mining-token" ? B : addresses.SqueekToken,
+        genesisCollection:
+          state.graphFault === "mining-nft" ? B : addresses.SqueekNFT,
       });
     if (fn === "state")
       return tupleResult(abis.SqueekMining, fn, {
@@ -512,17 +546,24 @@ export async function setupMock(
 ) {
   const state = Object.assign(defaults(), options);
   const receipts = new Map<string, unknown>();
-  await page.route("https://docs.squeekchain.com/**", (route) =>
-    route.fulfill({ json: docs }),
-  );
+  await page.route("https://docs.squeekchain.com/**", (route) => {
+    if (state.docsUnavailable) return route.fulfill({ status: 503, json: {} });
+    const published = structuredClone(docs);
+    if (state.docsMismatch)
+      published.contracts.SqueekCore.address = addresses.SqueekToken;
+    return route.fulfill({ json: published });
+  });
   await page.route("https://api.squeekchain.com/**", async (route) => {
     const url = new URL(route.request().url());
+    state.apiCalls.push(url.pathname);
     if (state.apiUnavailable)
       return route.fulfill({ status: 503, json: { error: "unavailable" } });
     const identities = {
       token: state.mismatch ? addresses.SqueekCore : addresses.SqueekToken,
-      core: addresses.SqueekCore,
-      mining: { proxy: addresses.SqueekMining },
+      core: state.mismatch ? addresses.SqueekNFT : addresses.SqueekCore,
+      mining: {
+        proxy: state.mismatch ? addresses.SqueekToken : addresses.SqueekMining,
+      },
     };
     if (url.pathname.includes("/accounts/"))
       return route.fulfill({
@@ -566,16 +607,27 @@ export async function setupMock(
   async function rpc(body: { id: number; method: string; params: unknown[] }) {
     state.rpcCalls.push(body.method);
     try {
+      if (state.rpcUnavailable) throw new Error("RPC unavailable");
       let result: unknown;
       const p = body.params;
-      if (body.method === "eth_chainId") result = "0xaa36a7";
+      if (body.method === "eth_chainId") result = toHex(state.rpcChain);
       else if (body.method === "eth_blockNumber") result = toHex(state.block);
       else if (body.method === "eth_getCode")
-        result = state.noCode ? "0x" : "0x60806040";
+        result =
+          state.noCode ||
+          String(p[0]).toLowerCase() === state.noCodeAt?.toLowerCase()
+            ? "0x"
+            : "0x60806040";
       else if (body.method === "eth_getBalance") result = toHex(SQK("2"));
       else if (body.method === "eth_call") {
         const call = p[0] as { to: string; data: Hex };
         const d = decode(call.to, call.data);
+        state.contractReads.push({
+          name: d.name,
+          functionName: d.functionName,
+          to: call.to,
+          block: p[1],
+        });
         const f = d.abi.find(
           (x) => x.type === "function" && x.name === d.functionName,
         ) as { stateMutability: string };

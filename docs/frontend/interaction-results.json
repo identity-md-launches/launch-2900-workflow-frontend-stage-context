@@ -1,13 +1,13 @@
 {
-  "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/squeekmatch-browsers npm --prefix web test",
-  "startedAt": "2026-11-03T00:07:47.029Z",
-  "durationMs": 64229,
-  "passed": 41,
+  "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/squeekmatch-browsers npm test (from installed temporary copy of web/)",
+  "startedAt": "2026-11-03T06:47:19.606Z",
+  "durationMs": 80056.316,
+  "passed": 62,
   "failed": 0,
   "skipped": 0,
   "flaky": 0,
   "browser": "Playwright Chromium headless",
-  "network": "Mocked for every transaction interaction; no broadcasts",
+  "network": "Mocked RPC/API/wallet interactions; no broadcasts",
   "tests": [
     {
       "title": "automated accessibility scan covers every primary view and the wallet sheet",
@@ -15,7 +15,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 5303
+          "durationMs": 4378
         }
       ]
     },
@@ -25,7 +25,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 2084
+          "durationMs": 2040
         }
       ]
     },
@@ -35,7 +35,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 2104
+          "durationMs": 2053
         }
       ]
     },
@@ -45,7 +45,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 704
+          "durationMs": 613
         }
       ]
     },
@@ -55,7 +55,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 733
+          "durationMs": 670
         }
       ]
     },
@@ -65,7 +65,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 844
+          "durationMs": 749
         }
       ]
     },
@@ -75,17 +75,17 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 806
+          "durationMs": 662
         }
       ]
     },
     {
-      "title": "API identity mismatch blocks trade and merge signing",
+      "title": "API deployment mismatch warns while documented-contract trading stays enabled",
       "status": "expected",
       "runs": [
         {
           "status": "passed",
-          "durationMs": 974
+          "durationMs": 2848
         }
       ]
     },
@@ -95,7 +95,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 438
+          "durationMs": 416
         }
       ]
     },
@@ -105,7 +105,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 3038
+          "durationMs": 2874
         }
       ]
     },
@@ -115,7 +115,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 3081
+          "durationMs": 2910
         }
       ]
     },
@@ -125,7 +125,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 3083
+          "durationMs": 3018
         }
       ]
     },
@@ -135,7 +135,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 3409
+          "durationMs": 3149
         }
       ]
     },
@@ -145,7 +145,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 3396
+          "durationMs": 3192
         }
       ]
     },
@@ -155,7 +155,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 3408
+          "durationMs": 3221
         }
       ]
     },
@@ -165,7 +165,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 1701
+          "durationMs": 1585
         }
       ]
     },
@@ -175,7 +175,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 1685
+          "durationMs": 1549
         }
       ]
     },
@@ -185,7 +185,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 1623
+          "durationMs": 1655
         }
       ]
     },
@@ -195,7 +195,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 1415
+          "durationMs": 1380
         }
       ]
     },
@@ -205,7 +205,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 2450
+          "durationMs": 2321
         }
       ]
     },
@@ -215,7 +215,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 1314
+          "durationMs": 1429
         }
       ]
     },
@@ -225,7 +225,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 3434
+          "durationMs": 3303
         }
       ]
     },
@@ -235,7 +235,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 2220
+          "durationMs": 2096
         }
       ]
     },
@@ -245,7 +245,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 1521
+          "durationMs": 1462
         }
       ]
     },
@@ -255,7 +255,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 754
+          "durationMs": 654
         }
       ]
     },
@@ -265,7 +265,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 817
+          "durationMs": 709
         }
       ]
     },
@@ -275,7 +275,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 784
+          "durationMs": 703
         }
       ]
     },
@@ -285,7 +285,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 824
+          "durationMs": 736
         }
       ]
     },
@@ -295,7 +295,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 853
+          "durationMs": 872
         }
       ]
     },
@@ -305,17 +305,17 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 1065
+          "durationMs": 986
         }
       ]
     },
     {
-      "title": "a new mismatch after review blocks even the first approval signature",
+      "title": "a new on-chain mismatch after review blocks even the first approval signature",
       "status": "expected",
       "runs": [
         {
           "status": "passed",
-          "durationMs": 1371
+          "durationMs": 1225
         }
       ]
     },
@@ -325,17 +325,17 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 2244
+          "durationMs": 2104
         }
       ]
     },
     {
-      "title": "required API outage fails closed while read-only planning remains reachable",
+      "title": "API outage leaves documented-contract transactions and planning available",
       "status": "expected",
       "runs": [
         {
           "status": "passed",
-          "durationMs": 668
+          "durationMs": 2814
         }
       ]
     },
@@ -345,7 +345,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 245
+          "durationMs": 205
         }
       ]
     },
@@ -355,7 +355,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 1259
+          "durationMs": 1164
         }
       ]
     },
@@ -365,7 +365,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 27
+          "durationMs": 18
         }
       ]
     },
@@ -375,7 +375,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 4
+          "durationMs": 3
         }
       ]
     },
@@ -395,7 +395,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 1
+          "durationMs": 2
         }
       ]
     },
@@ -405,7 +405,7 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 2
+          "durationMs": 3
         }
       ]
     },
@@ -415,7 +415,217 @@
       "runs": [
         {
           "status": "passed",
-          "durationMs": 2
+          "durationMs": 1
+        }
+      ]
+    },
+    {
+      "title": "blocks inconsistent on-chain graph: escrow-nft",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 416
+        }
+      ]
+    },
+    {
+      "title": "blocks inconsistent on-chain graph: escrow-sqk",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 451
+        }
+      ]
+    },
+    {
+      "title": "blocks inconsistent on-chain graph: escrow-mining",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 408
+        }
+      ]
+    },
+    {
+      "title": "blocks inconsistent on-chain graph: nft-mining",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 399
+        }
+      ]
+    },
+    {
+      "title": "blocks inconsistent on-chain graph: mining-core",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 439
+        }
+      ]
+    },
+    {
+      "title": "blocks inconsistent on-chain graph: mining-token",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 538
+        }
+      ]
+    },
+    {
+      "title": "blocks inconsistent on-chain graph: mining-nft",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 538
+        }
+      ]
+    },
+    {
+      "title": "blocks inconsistent on-chain graph: config-core",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 534
+        }
+      ]
+    },
+    {
+      "title": "blocks inconsistent on-chain graph: policy-nft",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 522
+        }
+      ]
+    },
+    {
+      "title": "blocks when documented SqueekNFT has no code",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 571
+        }
+      ]
+    },
+    {
+      "title": "blocks when documented SqueekToken has no code",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 538
+        }
+      ]
+    },
+    {
+      "title": "blocks when documented SqueekMining has no code",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 546
+        }
+      ]
+    },
+    {
+      "title": "blocks when documented SqueekCore has no code",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 553
+        }
+      ]
+    },
+    {
+      "title": "RPC outage fails closed",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 419
+        }
+      ]
+    },
+    {
+      "title": "wrong RPC chain fails closed",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 320
+        }
+      ]
+    },
+    {
+      "title": "documentation mismatch fails closed",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 525
+        }
+      ]
+    },
+    {
+      "title": "documentation outage fails closed",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 517
+        }
+      ]
+    },
+    {
+      "title": "mismatched API cannot change wallet holdings, planner inputs, board or a merge target",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 5069
+        }
+      ]
+    },
+    {
+      "title": "footer shows the documented set even when the RPC cannot load",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 268
+        }
+      ]
+    },
+    {
+      "title": "required graph checks do not wait for a slow API",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 1925
+        }
+      ]
+    },
+    {
+      "title": "RPC loss after opening a review blocks the approval signature",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 1026
         }
       ]
     }

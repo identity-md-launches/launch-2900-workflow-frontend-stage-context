@@ -1,94 +1,87 @@
-# SqueekMatch worker validation
+# SqueekMatch website update: validation
 
-Validated 2026-11-02–03 UTC against the delivered production export. This is worker evidence, not independent certification and not the later publication check.
+Validated 2026-11-03 UTC against the final production export. Complete for the stated website-only scope. These are worker observations, not independent certification. The escrow, Solidity source, deployment handoffs, dependencies and existing build configuration were preserved.
 
 ## Result
 
-The frontend source, lockfile, static export, runtime deployment manifest and documentation are complete for this worker's delivery scope. The real deployment remains **readable with trading/merging paused**, because the live API identities disagree with the documented on-chain graph. Deposited merging is explicitly unavailable because the matching deployment publishes no Staking/mergeDeposited integration. Neither gap is filled with a substitute address or selector.
+Trading is available when the Sepolia escrow and its documented on-chain graph verify. The real API deployment mismatch is a visible advisory. API outage or delay cannot block verification, wallet lookup or signing. Inconsistent on-chain links, missing code, wrong chain, unavailable RPC and unverified live documentation still fail closed.
 
-The export contains 37 declared assets plus the manifest, **1,055,895 bytes** total; two complete named/immutable response-body copies are about 2.02 MiB before RPC overhead. The largest file is 363,514 bytes. This leaves substantial room under the publication response budget.
+Production build, strict TypeScript and deployment/asset verification pass. **62/62 Playwright tests pass**, with no failures, skips or flaky results. The pinned **taste@1 probe passes 16/16 checks**. Automated axe checks found zero violations for their selected WCAG tags across the five primary views and wallet dialog. No transaction was signed or broadcast on Sepolia.
 
-Final application checks: production build/typecheck pass; **41 Playwright tests pass**, zero skipped/flaky/failing; **16/16 taste@1 checks pass**. Automated axe checks report zero violations across the five primary views and the wallet dialog for the tested WCAG rule tags. Those checks do not establish screen-reader or physical-device behavior.
+The final export contains **37 inventoried assets plus its manifest, 1,057,468 bytes total**. Its largest file is 364,541 bytes. All 38 files were fetched from a strict static subpath and matched to the source export and manifest hashes. Entrypoint asset URLs are relative; title, description, favicon, og:title and og:image are present.
 
-## Scope and configuration binding
+## Commands and outcomes
 
-- Source is under `web/`; root `dist/` is the actual served static export. Hash navigation and `base: './'` were exercised at `/preview/` without route rewrites.
-- The app fetches `imd-deployment.json` at runtime and loads its referenced escrow ABI. Startup rejects a changed ABI hash before wallet controls load; the interaction suite covers that rejection.
-- The complete contract set, source commit, launch ID, attestation hash and chain ID come from the supplied handoff. The network and wallet-add-chain objects are copied unchanged. This `evm_contracts` handoff has no poolKey; none is invented. P2P NFT swaps use the escrow, not an invented Uniswap route.
-- Pinned ABI raw bytes from `git show ba6069873530d6484250b8ed574a70b0a7200068:docs/abi/SqueekMatchEscrow.json` and `web/public/abi/SqueekMatchEscrow.json` both SHA-256 to `16006c7c02a4f95b5e1d51c367e8d5dfa40e6d1128bc89f0eb00ef0deae9a4e1`. Canonical JSON (recursive key sorting, array order preserved) Keccak is `000dd3c70055e309aeaa0c7ea80a1a8e5c4e0051ac51ad85843d5b5aebdef12b`, matching the handoff.
-- External ABI/snapshot provenance is retained in `web/public/official/provenance.json`. Transaction dependency addresses are resolved from escrow/NFT/mining contract reads. API results never select them.
+Dependencies were installed with the unchanged `web/package.json` and lockfile in a temporary copy under `/tmp/`; no repository dependency directory or protected build file was touched. Build output was copied back byte-for-byte to root `dist/`. Runtime: Node 24.22.1 and npm 11.19.1.
 
-## Commands and observed outcomes
-
-| Command / check | Outcome |
+| Command/check | Actual result |
 | --- | --- |
-| `npm install --prefix web …` with explicit temporary caches | Installed normal frontend dependencies; package/lockfile stay in `web/`; `npm ls --prefix web --depth=0` reports a valid dependency tree. |
-| `npm --prefix web run typecheck` | Pass, strict TypeScript. Also runs in every production build. |
-| `npm --prefix web run build` | Pass; emits root export and then the deployment/asset manifest. The final extra license asset does not change the tested JS/CSS bytes. |
-| `npm --prefix web run verify` | Pass; exact contract/ABI binding, network object, wallet-add parameters and every exported file's final SHA-256 inventory. |
-| `PLAYWRIGHT_BROWSERS_PATH=/tmp/squeekmatch-browsers npm --prefix web test` | 41/41 pass against the production export, with a test-owned strict static server. All signing, RPC and API interactions are mocked. |
-| `IMD_PLAYWRIGHT=…/web/node_modules/playwright/index.mjs node .imd/reads/skills/design-critic/scripts/taste.mjs --out test/scratch/taste` | 16/16 pass with live reads at 320, 390 and 1440; includes reduced motion. Full output is `taste-results.json`. |
-| Local HTTP asset audit | Every declared file fetched at a subpath and matched against its manifest SHA-256; no missing OG image or ABI asset. See `export-audit.json`. |
-| `git diff --check`, permitted-path and added-file-byte audit | Pass. Only `web/**`, `dist/**`, `docs/**`, and the explicitly budgeted `web/.gitignore` are included. No protected contract/build files changed. |
+| `npm ci --cache /tmp/squeekmatch-npm-cache --no-audit --no-fund` in the temporary `web/` copy | Pass. Existing lockfile retained. |
+| `npm run typecheck` | Pass, `tsc --noEmit`. |
+| `npm run build` | Pass. Vite production export and manifest generated after the last application source change. |
+| `npm run verify` | Pass. Exact deployment/network binding and canonical escrow ABI Keccak match the handoff; all final export assets inventoried. |
+| `PLAYWRIGHT_BROWSERS_PATH=/tmp/squeekmatch-browsers npm test` | Final run: 62 passed in 80.1 seconds, 0 failed/skipped/flaky. Static export served at `/preview/`. All chain, API and wallet test requests mocked. |
+| `IMD_PLAYWRIGHT=/tmp/squeekmatch-fix/web/node_modules/playwright/index.mjs PLAYWRIGHT_BROWSERS_PATH=/tmp/squeekmatch-browsers node .imd/reads/skills/design-critic/scripts/taste.mjs --out test/scratch/taste` from repository root | Final run: 16/16 pass at 320, 390 and 1440, including reduced motion. |
+| Bounded HTTP export audit | Pass: 37 assets and manifest, all responses 200, SHA-256 inventory and exported bytes match. `export-audit.json`. |
+| Read-only Sepolia graph check | Pass at block 12053582, including an exact requested/returned block-number round trip. `live-read-check.json`. |
+| Playwright WebKit install and launch | Browser downloaded; launch failed because GTK/GStreamer and other system libraries are absent. WebKit rendering remains unperformed. |
+| `git diff --check` and path/byte audit | Pass; final counts in `scope-audit.json`. No ignore file or protected file changed; no dependency archives/caches or new submodule included. |
 
-The final browser suite also checks 820px. It exercises all create/fill/cancel controls, exact SQK and NFT approval arguments, 7-day/default expiry, one-sided swap differences, my-order access, direct order lookup, post-fill merge selection, survivor/donor confirmation, separate sorted reward claims, cooldown/pending-power gates, planner bids, IndexedDB reuse, RPC failure, ABI tampering, initial/fresh API mismatch, API outage, wallet rejection, missing-chain add/switch, wrong-network recovery and mobile app links. SQK parser/formatter tests preserve one base unit and values beyond JavaScript's safe integer range. Long-value browser tests use full addresses and a 2^255-sized SQK amount at 320/390.
+The first browser-suite attempt used an incompatible pre-existing browser revision and was stopped; a matching Chromium was installed outside the repository. An added RPC-loss test initially injected the outage before its asynchronous review preparation completed. It now waits for the review button to appear, then injects the outage; targeted and complete reruns pass. The first design probe found one nested warning surface; the final probe confirms its correction.
 
-## Live reads, without broadcasting
+## Meaningful interactions
 
-`live-read-check.json` records the separate read-only observation at Sepolia block **12051553**:
+The included suite exercises address lookup and invalid input; on-chain holdings, levels, cooldowns, readiness and rewards; planner input and separately confirmed path bids; Match board indexing, filtering and cache reuse; create/fill/cancel for asks, bids and swaps; exact SQK/NFT approvals; receipt locking; claims; merge previews and irreversible-burn acknowledgment; wrong-chain recovery and add-chain parameters; named EIP-6963 wallets; phone app-browser links; Coinbase entry; and ABI-tampering rejection.
 
-- RPC returned chain **11155111** and nonempty code at the exact attested escrow.
-- Escrow-derived NFT/SQK/mining/core match the supplied documented graph; SQK reports 18 decimals.
-- `nextOrderId()` was **1**, so the real empty market is not sample data.
-- API token/mining/core differ from those derived addresses. The app displays the mismatch, excludes mismatched API holdings/pace, and disables approvals, fills, creates and merges. Cancels/refunds still use the attested escrow and a dry run.
-- **No worker transaction was signed or broadcast.** Later control-plane RPC/asset checks and real wallet swaps/merges are not claimed by this evidence.
+New regressions establish that:
+
+- API token/Mining/Core mismatch shows the requested warning while approving the documented SQK and submitting to the original escrow.
+- API failure still permits approvals/orders. An intentionally unresolved API does not delay required verification or wallet lookup.
+- The mismatch cannot alter wallet holdings, planner inputs, board levels or the documented Mining merge target. No account or Squeek-detail API is requested.
+- Nine graph inconsistencies, code absence at each dependency, wrong RPC chain, RPC failure and documentation mismatch/outage block trading.
+- Graph changes and RPC loss after opening a transaction review block the first approval signature.
+- The footer contains all five documented addresses even when RPC verification is unavailable.
+
+The suite validates all five views at 320, 390, 820 and 1440. It also covers very large exact SQK amounts, full addresses and 200% text enlargement. That is not native browser zoom.
+
+## Live observations
+
+Public source: `https://ethereum-sepolia-rpc.publicnode.com`. At Sepolia block **12053582**, chain ID was **11155111**, and all five contracts had code. The escrow immutables, NFT mining link, Mining token/genesis/core configuration and collection policy matched both the shipped snapshot and live published docs. SQK reported 18 decimals. `nextOrderId()` was 1, so the displayed empty market is real.
+
+The API reported a different token/Mining/Core set. The final rendered website displayed **Identity checks passed** and the exact requested API warning together. Its required verification never calls the API. Graph/configuration and dependency code checks use one explicit block. Wallet ownership, positions, readiness and balance checks also share a fresh explicit block after event discovery.
 
 ## Better Interface review
 
-One visual idea: a quiet, warm-paper companion tool where two small hamster shapes make the purpose legible, while forms and chain facts carry the interaction. There is no marketing hero before the product.
+Applied the pinned workflow and all six domains during this existing-site correction. One visual idea remains: warm paper and forest-green task controls, with the lookup and wallet action before explanation. No unrelated redesign was introduced.
 
-| Domain | Coverage and evidence | Limitations |
+| Domain | Checked coverage | Unperformed/not applicable |
 | --- | --- | --- |
-| Accessibility | Checked native controls, heading order, labels/descriptions, dialog focus containment/Escape/return, keyboard skip/focus, persistent errors, dynamic status and reduced motion. Automated axe checks pass on all five routes and wallet sheet. | No screen-reader, native Safari or physical-device session. |
-| Layout | Checked all five views at 320/390/820/1440, large balances, full identity details, bottom sheet and 200% text enlargement. No sideways scroll. Default main action at 390 × 844 has y=536.375 and height=44: entirely within the first screen. | Text enlargement is not browser-native zoom. RTL/pseudo-localization were not exercised; English-only is the delivered language. |
-| Writing | Source review of action labels, custody/escrow/expiry explanations, permanent merge consequences, unavailable-data copy and mismatch recovery. Probe first-screen prose: 26 words at 390, below its 60-word bar. | No user study or translation review. |
-| Typography | Loaded local DM Sans confirmed by `document.fonts.check`; one family and three weights. Probe sees at most five sizes including one-offs. Inputs are 16px. Amounts preserve all base units; addresses wrap. | Other operating-system font rendering was not sampled. |
-| Colors | Final rendered text probe passes. Browser-computed input, primary and warning pairs match the source tokens; explicit text/focus/control calculations below. Selected state also has an underline. | Forced-colors CSS was reviewed, but an OS high-contrast session was not performed. |
-| UI | Inspected empty/read/loading/paused, connect sheet, visible focused close, state/error/receipt flows through mocked interactions; native table/disclosures, flat surfaces and restrained motion. | Real extension prompts, Coinbase passkeys, native phone links and real receipt/replacement edge cases were not exercised. |
+| Accessibility | Native fields/links/buttons, bound labels, focus styles and live statuses reviewed in source; keyboard-opened wallet sheet, visible close focus, Escape/focus return inspected; axe passes on every primary view and wallet sheet. | No screen-reader or physical assistive-device session. |
+| Layout | Production export inspected in Chromium at 390 and 1440; footer wrapping inspected at 390; tests cover 320/390/820/1440 and 200% text enlargement. No measured horizontal overflow. | Native zoom, RTL and pseudo-localization unperformed; English-only interface. |
+| Writing | Required-vs-advisory identity copy, source labels, newer-deployment note, transaction consequences and recovery text checked. Probe measures 26 prose words on the first 390 screen, under 60. | No user study or translation review. |
+| Typography | Local DM Sans confirmed loaded. Existing six-token scale and 400/500/700 weights retained; probe sees at most five rendered sizes; full addresses and exact amounts wrap. | Other operating systems and WebKit font rendering unperformed. |
+| Colors | Final rendered text probe passes. Actual API warning foreground is `rgb(117,80,22)` on verification background `rgb(238,239,228)`, measured **6.21:1**. Text/page **11.14:1**, muted/surface **5.20:1**, warning/background **6.47:1**, focus/surface **6.43:1**. | These are identified solid pairs, not every possible wallet/native overlay. No OS high-contrast session. Single light theme; dark-theme testing not applicable. |
+| UI | Verified and paused states, advisory warning, empty market, loading/error paths, wallet dialog and footer examined. Motion/source checks and reduced-motion tests pass; no nested warning card remains. | Real extension prompts, Coinbase passkeys, physical phone links and live transaction receipts unperformed. |
 
-Measured identified pairs, using sRGB WCAG luminance and the observed resolved solid backgrounds: text `#203c31`/page `#f7f7f0` **11.14:1**; muted `#607065`/surface `#fffef9` **5.20:1**; warning `#755016`/`#fcf2dc` **6.47:1**; error `#913c29`/`#fcebe5` **6.30:1**; focus `#315f9a`/surface **6.43:1** and focus/selected `#e5edb0` **5.28:1**. These are specific pairs, not an assertion about every possible overlay or native wallet UI. The probe separately measures all text it can resolve on the rendered entry view.
+## Findings, fixes and rechecks
 
-## Findings, corrections and rechecks
+| Severity / final source location | Finding and correction | Evidence/recheck |
+| --- | --- | --- |
+| High · `web/src/service.ts:136` | API identity and availability previously blocked the verified documented deployment. Required verification now uses only chain and documentation; API comparison is separate advisory display logic. | Live site shows verified state plus warning; API mismatch/outage/delay tests pass. |
+| High · `web/src/service.ts:252`, `web/src/Trade.tsx:41` | API accounts/custody could describe the other deployment and delayed lookup/previews. Removed these requests; holdings, positions, readiness, balances and transaction facts use documented contracts. | Tests confirm expected holdings/levels/readiness and documented transaction targets, with no account/Squeek API calls. |
+| Medium · `web/src/Singles.tsx:261`, `web/src/Planner.tsx:201` | Pace from another deployment could be combined with documented economics or cooldowns. Removed SQK/day and cooldown-hour extrapolations; retained on-chain power/block calculations and separate labelled telemetry. | Planner and lookup tests pass; source boundary reviewed. |
+| Medium · `web/src/service.ts:211` | A combined Mining graph failure could display identical token addresses when its genesis/core link was wrong. Each required link now has its own expected/observed row. | Nine graph-failure tests pass. |
+| Medium · `web/src/App.tsx:744`, `web/src/styles.css:858` | The documented set previously depended on loaded graph data and was hidden in a disclosure. Added an always-visible wrapping footer with all five addresses and the newer-deployment note. | RPC-outage footer test and actual 390 footer screenshot pass; no overflow. |
+| Medium · `web/src/App.tsx:521`, `web/src/styles.css:864` | Initial new warning introduced a card inside the verification card. Replaced it with inline warning text and a leading rule. | First probe flagged `chrome`; final probe passes, actual desktop screenshot inspected, warning contrast 6.21:1. |
 
-| Severity / location | Finding, change and evidence |
-| --- | --- |
-| Medium · `web/src/components.tsx:165` | A wrapping field label included its hint in the accessible name, causing exact-label interaction failures. `Field` now binds a separate native label and `aria-describedby` hint. Address/form interactions and axe rechecks pass. |
-| Medium · `web/src/styles.css:1353` | Mobile aside children retained grid `align-items:start` after becoming flex, leaving panels unnecessarily narrow in the observed 390 screenshot. Mobile aside now stretches children. Final mobile/desktop screenshots and reflow tests confirm full usable width. |
-| Medium · `web/src/styles.css:24` | Structural separators were also input boundaries. Added a dedicated stronger `--control-line`; kept light separators structural. Final browser-computed input border is `rgb(126,139,119)`, distinct from surface, with visible keyboard focus. |
-| Medium · `web/src/App.tsx:414` | Ten empty price rows pushed the identity warning far down the entry view and left a large blank primary column. Empty-book prices now sit in a native disclosure with a visible affordance; all levels remain accessible. Data rows are a semantic table. Final desktop screenshot shows the warning within the first screen. |
-| Low · `web/src/App.tsx:497` | Successful verification inherited amber styling. Successful state now uses neutral tokens; amber remains checking/paused. Source review and mocked verified-page accessibility checks pass. |
-| Medium · `web/src/config.ts:30` | Rabby app-browser link needed the vendor handler's actual query contract. It now uses `/mobile/?_cmd=open-dapp&dapp=…`; the source and encoded current-page URL are checked. Undefined `window.ethereum` is treated as no provider. Native opening remains unverified. |
-| High · `web/src/domain.ts:7` | A four-decimal formatter could turn a positive sub-0.0001 amount into a misleading zero-like string in confirmations. Full base-unit precision is preserved. Tests cover one positive/negative base unit and large exact values; browser long-value reflow passes. |
-| Medium · `web/src/Merge.tsx:104` | Official claims require ascending IDs even when the user chooses the higher ID as survivor. Claim IDs are sorted; merge IDs retain exact survivor/donor order. The interaction test uses reversed input IDs and confirms `[0,[1,2]]` for claim. |
-| Medium · `web/src/Transactions.tsx:38` | A known submitted hash must not become a resend action after a receipt lookup fails. The review retains it and offers confirmation lookup only. Normal receipt lock/refresh behavior is tested; a real dropped/replaced transaction remains a stated live-chain limitation. |
-| Low · `web/src/service.ts:549` | Statistics endpoint initially answered HTTP 400 because it requires `range=7d`. Corrected the query using the published API specification; final live probe has no failed local resources or script errors. The merging-help link was also corrected to the actual `/squeeks/merge/` route. |
+No unresolved applicable high/medium finding remains in this correction's scope. Root `DESIGN.md` documents the final implemented tokens, type, layout and components.
 
-No unresolved high/medium finding remains in the reviewed frontend scope. The upstream identity conflict and unavailable deposited integration remain explicitly visible; they are not classified as corrected chain behavior.
+## Evidence and limitations
 
-## Evidence and limits
+- `evidence/final-live-mobile.png`: final 390 × 844 first screen. Main lookup button spans y=536.375–580.375, fully visible with the product and wallet control.
+- `evidence/final-live-desktop.png`: final 1440px screen with real empty market, passing identity and API warning.
+- `evidence/final-contract-footer.png`: final 390px footer, five full wrapping addresses and newer-deployment note.
+- `evidence/final-wallet-sheet.png`: keyboard-opened wallet sheet with visible focus. Escape returns to its opener.
+- `interaction-results.json`, `taste-results.json`, `live-read-check.json`, `export-audit.json`, `scope-audit.json`: current machine-readable results, without account configuration or private data.
 
-- `evidence/final-live-mobile.png`: actual 390 × 844 first screen, wallet and main lookup action visible.
-- `evidence/final-live-desktop.png`: actual 1440px entry view, empty live market and paused identity state.
-- `evidence/final-wallet-sheet.png`: keyboard-opened native dialog with visible 2px focus ring. Escape returned focus to its opener.
-- `interaction-results.json`: sanitized final Playwright outcomes with durations and no local-machine paths.
-- `taste-results.json`, `export-audit.json`, `live-read-check.json`: machine-readable design/export/live-read records.
-
-The first WebKit download hit temporary storage quota; after clearing this task's redundant temporary downloads it installed, but could not launch because required GTK/GStreamer and related shared libraries are absent. **WebKit rendering was not performed.** Chromium and the supplied browser tool worked. No permission or missing requester value was needed to finish this source/export delivery.
-
-Screen readers, physical phones, real wallet extensions, passkey signup, live approvals/trades/claims/merges, dropped/replaced transactions and native browser zoom were not validated. Long initial public-log scans and reorgs deeper than the replay tail are disclosed operational limits. IPFS publication, naming, absolute hosted Open Graph URLs and the control plane's immutable/named-copy checks happen after delivery.
-
-The explicit ignore-file path budget is **one file: `web/.gitignore`**. Required source, local runtime assets, ABI files, lockfile, static export and evidence remain present. Dependency directories/caches, browser downloads, registry archives, scratch traces and submodules are excluded. `docs/DESIGN.md` supplies the required design-system content within the overriding permitted paths.
-
-## Local Git limitation
-
-The attempted `git add -- web dist docs` returned `fatal: Unable to create .git/index.lock: Read-only file system`. Git metadata is protected on this worker, so staging and a local commit were not possible. All source/export/evidence files are present in the allowed paths for collection; no local commit hash or completed publication is claimed.
+WebKit/Safari, physical devices, screen readers, real wallet extensions/passkeys, native app opening, native zoom, live signing and dropped/replaced receipts were not validated. Confirmed event discovery has a 12-block delay; first public log scans may be slow, and reorgs deeper than the replay tail may require clearing the event cache. The Match board labels its indexed snapshot and sends visitors to Inspect wallet for live readiness. The documented deployment supplies no matching staking/deposited-merge integration, so deposited holdings are not invented from the newer API. No on-chain deployment or publication was performed by this task.
