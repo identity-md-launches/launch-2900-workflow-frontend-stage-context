@@ -1,0 +1,13 @@
+{
+  "permittedFiles": 111,
+  "addedFileBytes": 1900693,
+  "budgetBytes": 8388608,
+  "unexpectedPaths": [],
+  "ignoreFileBudget": [
+    "web/.gitignore"
+  ],
+  "protectedTrackedFilesModified": false,
+  "dependencyCachesOrArchivesIncluded": false,
+  "localCommitCreated": false,
+  "localCommitLimitation": "Git metadata is read-only; git add could not create .git/index.lock."
+}

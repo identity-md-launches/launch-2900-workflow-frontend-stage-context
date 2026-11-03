@@ -1,0 +1,37 @@
+{
+  "name": "squeekmatch-web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit && vite build && node scripts/manifest.mjs",
+    "preview": "vite preview --host 0.0.0.0",
+    "verify": "node scripts/manifest.mjs --check",
+    "test": "playwright test",
+    "format": "prettier --write src tests scripts *.ts index.html README.md",
+    "test:install": "playwright install chromium"
+  },
+  "dependencies": {
+    "@coinbase/wallet-sdk": "^4.4.0",
+    "@fontsource-variable/dm-sans": "^5.3.0",
+    "@tanstack/react-query": "^5.105.3",
+    "lucide-react": "^1.66.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "viem": "^2.57.14",
+    "wagmi": "^3.7.10"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.2.1",
+    "prettier": "^3.9.10",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5"
+  }
+}

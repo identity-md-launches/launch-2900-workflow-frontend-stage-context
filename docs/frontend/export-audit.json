@@ -1,0 +1,31 @@
+{
+  "checkedAt": "2026-11-03T00:12:56.762Z",
+  "passed": true,
+  "assetCount": 37,
+  "manifestExcludedFromOwnInventory": true,
+  "exportBytesIncludingManifest": 1055895,
+  "maxFileBytes": 363514,
+  "estimatedTwoCopyBodyBytes": 2111790,
+  "httpFilesChecked": 38,
+  "relativeEntrypointAssets": true,
+  "exactHandoffAndNetworkMatch": true,
+  "abiChecks": [
+    {
+      "name": "SqueekMatchEscrow",
+      "canonicalKeccak": "000dd3c70055e309aeaa0c7ea80a1a8e5c4e0051ac51ad85843d5b5aebdef12b",
+      "rawSha256": "16006c7c02a4f95b5e1d51c367e8d5dfa40e6d1128bc89f0eb00ef0deae9a4e1",
+      "pinnedSourceBytesMatch": true
+    }
+  ],
+  "socialImage": {
+    "format": "PNG",
+    "width": 1200,
+    "height": 630
+  },
+  "limits": {
+    "assets": 128,
+    "perFileBytes": 8388608,
+    "publicationBodyBudgetBytes": 67108864
+  },
+  "publicationChecksAlreadyRun": false
+}

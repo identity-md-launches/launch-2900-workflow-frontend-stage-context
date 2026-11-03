@@ -1,0 +1,423 @@
+{
+  "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/squeekmatch-browsers npm --prefix web test",
+  "startedAt": "2026-11-03T00:07:47.029Z",
+  "durationMs": 64229,
+  "passed": 41,
+  "failed": 0,
+  "skipped": 0,
+  "flaky": 0,
+  "browser": "Playwright Chromium headless",
+  "network": "Mocked for every transaction interaction; no broadcasts",
+  "tests": [
+    {
+      "title": "automated accessibility scan covers every primary view and the wallet sheet",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 5303
+        }
+      ]
+    },
+    {
+      "title": "text enlargement, long addresses, keyboard focus and reduced motion reflow",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 2084
+        }
+      ]
+    },
+    {
+      "title": "read-only address lookup finds odd levels, pairs, cooldowns and current power",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 2104
+        }
+      ]
+    },
+    {
+      "title": "invalid address is recoverable and never opens a wallet",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 704
+        }
+      ]
+    },
+    {
+      "title": "EIP-6963 wallet is named, Escape closes the sheet and restores focus",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 733
+        }
+      ]
+    },
+    {
+      "title": "missing chain triggers add-chain with the exact handoff then switches again",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 844
+        }
+      ]
+    },
+    {
+      "title": "wallet rejection stays in the picker with a recovery message",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 806
+        }
+      ]
+    },
+    {
+      "title": "API identity mismatch blocks trade and merge signing",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 974
+        }
+      ]
+    },
+    {
+      "title": "no deployed code refuses trading before graph or API trust",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 438
+        }
+      ]
+    },
+    {
+      "title": "ask uses an exact NFT approval followed by simulated createAsk",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 3038
+        }
+      ]
+    },
+    {
+      "title": "bid approval is an exact SQK amount and cannot duplicate while waiting for receipt",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 3081
+        }
+      ]
+    },
+    {
+      "title": "swap exposes a one-sided SQK difference and the exact wanted token",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 3083
+        }
+      ]
+    },
+    {
+      "title": "buy ask requires a live cooldown preview and then offers buy-then-merge",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 3409
+        }
+      ]
+    },
+    {
+      "title": "fill bid transfers an explicitly offered matching NFT",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 3396
+        }
+      ]
+    },
+    {
+      "title": "fill swap uses the offered NFT and checks both sides",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 3408
+        }
+      ]
+    },
+    {
+      "title": "cancel ask remains available on mismatch and uses the exact escrow",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 1701
+        }
+      ]
+    },
+    {
+      "title": "cancel bid remains available on mismatch and uses the exact escrow",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 1685
+        }
+      ]
+    },
+    {
+      "title": "cancel swap remains available on mismatch and uses the exact escrow",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 1623
+        }
+      ]
+    },
+    {
+      "title": "simulation revert gives a plain error and never requests a signature",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 1415
+        }
+      ]
+    },
+    {
+      "title": "merge previews official power, requires permanent-burn confirmation and signs survivor first",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 2450
+        }
+      ]
+    },
+    {
+      "title": "pending power and cooldown prevent a merge even with the burn acknowledgement",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 1314
+        }
+      ]
+    },
+    {
+      "title": "planner handles 3 L1 plus 1 L2 and turns one L1 purchase into a bid",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 3434
+        }
+      ]
+    },
+    {
+      "title": "holder board reconstructs singles from real-shaped events and reuses IndexedDB logs",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 2220
+        }
+      ]
+    },
+    {
+      "title": "RPC log failures show retry instructions instead of an invented empty balance",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 1521
+        }
+      ]
+    },
+    {
+      "title": "all primary pages reflow at 320px",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 754
+        }
+      ]
+    },
+    {
+      "title": "all primary pages reflow at 390px",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 817
+        }
+      ]
+    },
+    {
+      "title": "all primary pages reflow at 820px",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 784
+        }
+      ]
+    },
+    {
+      "title": "all primary pages reflow at 1440px",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 824
+        }
+      ]
+    },
+    {
+      "title": "phone without an extension offers all four app browsers plus Coinbase Smart Wallet",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 853
+        }
+      ]
+    },
+    {
+      "title": "wrong network stays visible and one switch restores transaction eligibility",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 1065
+        }
+      ]
+    },
+    {
+      "title": "a new mismatch after review blocks even the first approval signature",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 1371
+        }
+      ]
+    },
+    {
+      "title": "claim rewards is simulated and confirmed separately from the permanent merge",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 2244
+        }
+      ]
+    },
+    {
+      "title": "required API outage fails closed while read-only planning remains reachable",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 668
+        }
+      ]
+    },
+    {
+      "title": "runtime ABI tampering is rejected before wallet or transaction controls load",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 245
+        }
+      ]
+    },
+    {
+      "title": "largest SQK values and full identity addresses wrap at 320 and 390",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 1259
+        }
+      ]
+    },
+    {
+      "title": "SQK parser preserves every base unit and rejects extra decimals, negative and zero input",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 27
+        }
+      ]
+    },
+    {
+      "title": "IDs and address entry validate without guessing or ENS on an unsupported chain",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 4
+        }
+      ]
+    },
+    {
+      "title": "planner buys one L1 and carries merges up to L3 without assuming API power",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 3
+        }
+      ]
+    },
+    {
+      "title": "planner treats unknown price as unknown and respects maximum level",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 1
+        }
+      ]
+    },
+    {
+      "title": "event reconstruction applies transfers and a merge without double-counting a burned donor",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 2
+        }
+      ]
+    },
+    {
+      "title": "nested contract and wallet failures translate to recoverable language",
+      "status": "expected",
+      "runs": [
+        {
+          "status": "passed",
+          "durationMs": 2
+        }
+      ]
+    }
+  ]
+}

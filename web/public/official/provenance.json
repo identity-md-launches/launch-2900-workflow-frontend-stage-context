@@ -1,0 +1,7 @@
+{
+  "retrievedAt": "2026-11-02",
+  "documentation": "https://docs.squeekchain.com/assets/deployments/sepolia.json",
+  "abiBase": "https://docs.squeekchain.com/assets/abi/",
+  "sourceRevision": "89ecd8f1f54f5c5bef89660c070eb54b34ef8509",
+  "escrowDeploymentBlock": 12051420
+}

@@ -1,0 +1,9 @@
+# Explicit path budget: web/.gitignore only; recursive frontend caches are never delivered.
+**/node_modules/
+**/.npm/
+**/.cache/
+**/.vite/
+**/coverage/
+**/test-results/
+**/playwright-report/
+**/*.tsbuildinfo
